@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Forum för fårskallar{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header>
+    <nav>
+      <a href="{{ url_for('index') }}">Forum</a>
+      {% if user %}
+        <span> | Inloggad som {{ user.display_name or user.username }}</span>
+        <a href="{{ url_for('logout') }}">Logga ut</a>
+      {% else %}
+        <a href="{{ url_for('login') }}">Logga in</a>
+        <a href="{{ url_for('register') }}">Registrera</a>
+      {% endif %}
+      <a href="{{ url_for('new_topic') }}" style="float:right;">Skapa ny tråd</a>
+    </nav>
+  </header>
+
+  <main>
+    <!-- Visar flash-meddelanden överst -->
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul class="flashes">
+          {% for m in messages %}
+            <li>{{ m }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer>
+    <p>&copy; 2025 - Forum för fårskallar</p>
+  </footer>
+</body>
+</html>

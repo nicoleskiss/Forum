@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Alla trådar{% endblock %}
+
+{% block content %}
+<h1>Diskussionstrådar</h1>
+
+{% if topics %}
+  <ul class="topics">
+    {% for t in topics %}
+      <li>
+        <a href="{{ url_for('view_topic', topic_id=t.id) }}">{{ t.title }}</a>
+        <div class="meta">Skapad av {{ t.display_name or t.username }} • {{ t.created_at }}</div>
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p>Inga trådar ännu, skapa en!</p>
+{% endif %}
+{% endblock %}
