@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Ny tråd{% endblock %}
+
+{% block content %}
+<h1>Skapa ny tråd</h1>
+<form method="post">
+  <label>Titel</label><br>
+  <input type="text" name="title" required maxlength="200"><br><br>
+  <label>Inlägg</label><br>
+  <textarea name="content" rows="6" required></textarea><br><br>
+  <button type="submit">Skapa tråd</button>
+</form>
+{% endblock %}

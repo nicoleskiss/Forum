@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}{{ topic.title }}{% endblock %}
+
+{% block content %}
+<h1>{{ topic.title }}</h1>
+<div class="meta">Skapad av {{ topic.display_name or topic.username }} • {{ topic.created_at }}</div>
+
+<hr>
+
+<div class="posts">
+  {% for p in posts %}
+    <article class="post">
+      <header>
+        <strong>{{ p.display_name or p.username }}</strong>
+        <small>{{ p.created_at }}</small>
+      </header>
+      <p>{{ p.content | e | replace('\n','<br>') | safe }}</p>
+    </article>
+  {% endfor %}
+</div>
+
+<hr>
+
+{% if user %}
+  <h3>Svara i tråden</h3>
+  <form method="post">
+    <textarea name="content" rows="4" required></textarea><br><br>
+    <button type="submit">Skicka svar</button>
+  </form>
+{% else %}
+  <p><a href="{{ url_for('login') }}">Logga in</a> för att skriva svar.</p>
+{% endif %}
+{% endblock %}
