@@ -98,3 +98,98 @@ def new_topic():
         flash("Tråd skapad.")
         return redirect(url_for("view_topic", topic_id=topic_id))
     return render_template("new_topic.html", user=user)
+@app.route("/topic/<int:topic_id>", methods=["GET", "POST"])
+def view_topic(topic_id):
+    db = get_db()
+    topic = db.execute("""
+        SELECT t.id, t.title, t.created_at, u.username, u.display_name
+        FROM topics t JOIN users u ON t.user_id = u.id
+        WHERE t.id = ?
+    """, (topic_id,)).fetchone()
+    if not topic:
+        flash("Hittade inte tråden.")
+        return redirect(url_for("index"))
+
+    if request.method == "POST":
+        user = current_user()
+        if not user:
+            flash("Du måste vara inloggad för att posta.")
+            return redirect(url_for("login"))
+
+        content = request.form.get("content", "").strip()
+        if not content:
+            flash("Inlägg får inte vara tomt.")
+            return redirect(url_for("view_topic", topic_id=topic_id))
+
+        now = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+        db.execute(
+            "INSERT INTO posts (topic_id, user_id, content, created_at) VALUES (?, ?, ?, ?)",
+            (topic_id, user["id"], content, now)
+        )
+        db.commit()
+        return redirect(url_for("view_topic", topic_id=topic_id))  
+
+    posts = db.execute("""
+        SELECT p.id, p.content, p.created_at, u.username, u.display_name
+        FROM posts p JOIN users u ON p.user_id = u.id
+        WHERE p.topic_id = ?
+        ORDER BY p.created_at ASC
+    """, (topic_id,)).fetchall()
+    return render_template("topic.html", topic=topic, posts=posts, user=current_user())
+
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    if request.method == "POST":
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password", "")
+        display_name = request.form.get("display_name", "").strip() or username
+
+        if not username or not password:
+            flash("Användarnamn och lösenord krävs.")
+            return render_template("register.html")
+
+        db = get_db()
+        exists = db.execute("SELECT id FROM users WHERE username = ?", (username,)).fetchone()
+        if exists:
+            flash("Användarnamnet är redan upptaget.")
+            return render_template("register.html")
+
+        pw_hash = generate_password_hash(password)
+        db.execute(
+            "INSERT INTO users (username, password_hash, display_name) VALUES (?, ?, ?)",
+            (username, pw_hash, display_name)
+        )
+        db.commit()
+        flash("Konto skapat. Logga in.")
+        return redirect(url_for("login"))
+
+    return render_template("register.html", user=current_user())
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password", "")
+
+        db = get_db()
+        user = db.execute("SELECT id, username, password_hash FROM users WHERE username = ?", (username,)).fetchone()
+        if user is None:
+            flash("Felaktigt användarnamn eller lösenord.")
+            return render_template("login.html")
+        if not check_password_hash(user["password_hash"], password):
+            flash("Felaktigt användarnamn eller lösenord.")
+            return render_template("login.html")
+
+        login_user(user["id"])
+        flash("Inloggad.")
+        return redirect(url_for("index"))
+    return render_template("login.html", user=current_user())
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    flash("Utloggad.")
+    return redirect(url_for("index"))
+
+if __name__ == "__main__":
+    app.run(debug=True)

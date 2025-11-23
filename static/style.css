@@ -1,0 +1,12 @@
+body { font-family: Arial, sans-serif; margin: 0; background: #f4f6f8; color:#222; }
+header nav { background:#2c3e50; color:white; padding:10px; }
+header nav a { color:white; text-decoration:none; margin-right:12px; }
+main { max-width:900px; margin:20px auto; background:white; padding:20px; border-radius:6px; box-shadow:0 2px 6px rgba(0,0,0,0.05); }
+.flashes { list-style:none; padding:0; }
+.flashes li { background:#fffbdd; border:1px solid #ffe58f; padding:8px; margin-bottom:8px; border-radius:4px; }
+.topics li { padding:10px 0; border-bottom:1px solid #eee; }
+.meta { color:#666; font-size:0.9em; }
+.post { border-top:1px solid #eee; padding:12px 0; }
+.post header small { color:#666; margin-left:8px; }
+button { background:#2980b9; color:white; border:none; padding:8px 12px; border-radius:4px; cursor:pointer; }
+input[type="text"], input[type="password"], textarea { width:100%; padding:8px; box-sizing:border-box; margin-top:6px; }
